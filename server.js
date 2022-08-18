@@ -2,7 +2,7 @@ require("dotenv").config();
 require("./config/database.js").connect();
 const express = require("express");
 const app = express()
-const port = 3000
+const port = 4000
 const cors = require('cors');
 //using inbuilt body parser of express
 app.use(express.json());
@@ -14,7 +14,9 @@ const Task = require("./model/task")
 app.get('/', async(_, res) => {
    Task.find()
   .then(tasks=>res.json(tasks))
-  .catch(err=>res.status(400).json(`Error: ${err}`))
+  .catch(err=>{
+    console.log(err)
+    res.status(400).json(`Error: ${err}`)})
 })
 
 //create a task
@@ -23,16 +25,17 @@ app.post('/create',async(req,res)=>{
   const newTask = new Task({task})
 
    newTask.save()
-  .then(()=>res.json(`Task created!`))
-  .catch(err=>res.status(400).json(`Error occured: ${err}`))
+  .then((result)=>res.json(`Task created! ${result}`))
+  .catch(err=>{
+    console.error(err);
+    res.status(400).json(`Error occured: ${err}`)})
 })
 
 //update a task
 app.post('/update',async(req,res)=>{
-  const {id,task,isCompleted} = req.body;
+  const {id,isCompleted} = req.body;
   
    Task.updateOne({ _id:id }, {
-    task:task,
     isComplete:isCompleted
   })
   .then(()=>res.json(`Task updated!`))
@@ -47,6 +50,7 @@ app.post('/delete',async(req,res)=>{
   .then(()=>res.json(`Task deleted!`))
   .catch(err=>res.status(400).json(`Error occured: ${err}`))
 })
+
 
 app.listen(port, () => {
   console.log(`Todo app listening on port ${port}`)
