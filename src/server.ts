@@ -61,6 +61,6 @@ app.post("/delete", async (req: any, res: any) => {
 
 app.listen(port, () => {
   console.log(
-    `⚡️[server]: Todo App Server is running at https://localhost:${port}`
+    `⚡️[server]: Tod0 App Server is running at https://localhost:${port}`
   );
 });
