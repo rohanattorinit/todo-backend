@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from "express";
 require("dotenv").config();
-require("./config/database.js").connect();
+require("./config/database.ts").connect();
 
 const app: Express = express();
 const port = 4000;
@@ -60,5 +60,7 @@ app.post("/delete", async (req: any, res: any) => {
 });
 
 app.listen(port, () => {
-  console.log(`Todo app listening on port ${port}`);
+  console.log(
+    `⚡️[server]: Todo App Server is running at https://localhost:${port}`
+  );
 });
