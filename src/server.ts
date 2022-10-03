@@ -14,53 +14,81 @@ import Task from "./model/task";
 
 //get all the tasks
 app.get("/", async (req: Request, res: Response) => {
-  Task.find()
-    .then((tasks: any) => res.json(tasks))
-    .catch((err: any) => {
-      console.log(err);
-      res.status(400).json(`Error: ${err}`);
+  try {
+    const tasks = await Task.find();
+    res
+      .status(200)
+      .json({ message: `All tasks fetched successfully!`, data: tasks });
+  } catch (error) {
+    res.status(400).json({
+      error: `Error occured while trying to fetch items`,
+      errorMsg: error,
     });
+  }
 });
 
 //create a task
-app.post("/create", async (req: any, res: any) => {
+app.post("/", async (req: Request, res: Response) => {
   const { task } = req.body;
-  const newTask = new Task({ task });
-
-  newTask
-    .save()
-    .then((result: any) => res.json(`Task created! ${result}`))
-    .catch((err: any) => {
-      console.error(err);
-      res.status(400).json(`Error occured: ${err}`);
+  if (!task)
+    res.status(400).json({
+      error: "Could not find task data to create!",
+      errorMsg: `Task data is probably empty!`,
     });
+  try {
+    const newTask = new Task({ task });
+    await newTask.save();
+    res.status(200).json({ message: `Task created successfully!` });
+  } catch (error) {}
+  res
+    .status(400)
+    .json({ error: `Error occured while trying to create a new task!` });
 });
 
 //update a task
-app.post("/update", async (req: any, res: any) => {
-  const { id, isCompleted } = req.body;
+app.put("/update/:id", async (req: Request, res: Response) => {
+  const { isCompleted } = req.body;
+  const { id } = req.params;
+  if (!id)
+    res.status(400).json({
+      error: `Id of the task not found `,
+      errorMsg: `Try providing an id through params`,
+    });
 
-  Task.updateOne(
-    { _id: id },
-    {
-      isComplete: isCompleted,
-    }
-  )
-    .then(() => res.json(`Task updated!`))
-    .catch((err: any) => res.status(400).json(`Error occured: ${err}`));
+  try {
+    await Task.updateOne(
+      { _id: id },
+      {
+        isComplete: isCompleted,
+      }
+    );
+    res.status(200).json({ message: `Task updated successfully!` });
+  } catch (error) {
+    res.status(400).json({
+      error: `Error occured while trying to update the task`,
+      errorMsg: error,
+    });
+  }
 });
 
 //delete a task
-app.post("/delete", async (req: any, res: any) => {
-  const { id } = req.body;
+app.delete("/delete/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  if (!id) res.status(400).json({ error: `Id of the task was not obtained` });
 
-  Task.deleteOne({ _id: id })
-    .then(() => res.json(`Task deleted!`))
-    .catch((err: any) => res.status(400).json(`Error occured: ${err}`));
+  try {
+    await Task.deleteOne({ _id: id });
+    res.status(200).json({ message: `Task deleted successfully!` });
+  } catch (error) {
+    res.status(400).json({
+      error: `Error occured while deleting the task`,
+      errorMsg: error,
+    });
+  }
 });
 
 app.listen(port, () => {
   console.log(
-    `⚡️[server]: Tod0 App Server is running at https://localhost:${port}`
+    `⚡️[server]: Todo App Server is running at https://localhost:${port}`
   );
 });
